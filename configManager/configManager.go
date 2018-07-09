@@ -8,6 +8,7 @@ import (
 	//"go/types"
 	"reflect"
 	"fmt"
+	"log"
 )
 
 
@@ -66,7 +67,8 @@ import (
 //}
 
 var configPool map[string]interface{}
-
+var configCodeC Codec
+var typeMap map[string]reflect.Type
 type Codec interface {
 	// 将数据转换为字节数组
 	Encode(msgObj interface{}) (data interface{}, err error)
@@ -98,15 +100,24 @@ type configTriggerss struct{
 
 }
 func (self *configTriggerss)LoadFile(fileName string ,fileExt string,fileContent []byte) (error,interface{}){
-	//var tmpCodeC Codec = nil
-	//
-	//reflect.TypeOf()
-	//obj := reflect.New("sdfsdf").Interface()
-	//tmpCodeC.Decode(fileContent,nil)
+
+	tmpType := typeMap[fileName]
+	obj := reflect.New(tmpType).Interface()
+	configCodeC.Decode(fileContent,nil)
+	configPool[fileName] = obj
 	return nil,nil
 }
 func Register(typeElem reflect.Type){
 	fmt.Println(typeElem.Name())
 
+	typeMap[typeElem.Name()]=typeElem
 
+}
+func SetCodeC(tmpCode Codec){
+	if nil == tmpCode{
+		log.Fatal("error on set codec")
+		return
+	}
+
+	configCodeC = tmpCode
 }
