@@ -3,21 +3,28 @@ package configManager
 import (
 	"reflect"
 	"log"
+	"errors"
 )
 
 func loadFile(filePath string)error{
 	// load file
 	var fileContent []byte
 
-	tmpType := typeMap[filePath]
+	tmpType := typeMaps[filePath]
 
+	if nil == tmpType{
+		return errors.New("can't find type by name "+filePath)
+	}
 	obj := reflect.New(tmpType).Interface()
-	err := configCodeC.Decode(fileContent,nil)
+	if nil == obj{
+		return errors.New("instance obj fail by name "+filePath)
+	}
+	err := currentConfigDecoder.Decode(fileContent,nil)
 
 	if nil != err{
 		return err
 	}
-	configPool.Store(filePath,obj)
+	totalConfigPool.Store(filePath,obj)
 	return nil
 }
 func loadAllConfig(currentConfig *VersionConfig,newConfig *VersionConfig){
@@ -33,7 +40,7 @@ func loadAllConfig(currentConfig *VersionConfig,newConfig *VersionConfig){
 		for _,fileElem := range newConfig.FileList{
 			needLoadConfigList = append(needLoadConfigList,fileElem)
 		}
-		doLoadAllFile(needLoadConfigList,newConfig)
+		doLoadTargetConfig(needLoadConfigList,newConfig)
 		return
 	}
 
@@ -54,10 +61,10 @@ func loadAllConfig(currentConfig *VersionConfig,newConfig *VersionConfig){
 		}
 	}
 
-	doLoadAllFile(needLoadConfigList,newConfig)
+	doLoadTargetConfig(needLoadConfigList,newConfig)
 	return
 }
-func doLoadAllFile(needLoadConfigList []*VersionConfigElement,newVersionConfig *VersionConfig){
+func doLoadTargetConfig(needLoadConfigList []*VersionConfigElement,newVersionConfig *VersionConfig){
 	// do load file
 	for _,fileElem := range needLoadConfigList{
 		err := loadFile(fileElem.FilePath)
@@ -67,17 +74,17 @@ func doLoadAllFile(needLoadConfigList []*VersionConfigElement,newVersionConfig *
 		}
 	}
 	// fix version
-	versionConfig = newVersionConfig
+	currentVersionConfigInfo = newVersionConfig
 }
 
 func onFileChange(){
 	// load version config
-	config,err := loadVersionConfig(configDirectory+"/"+versionConfigPath)
+	config,err := loadVersionConfig(targetConfigDirectory +"/"+ targetVersionConfigName)
 	if nil != err || nil == config{
 		return
 	}
-	loadAllConfig(versionConfig,config)
+	loadAllConfig(currentVersionConfigInfo,config)
 }
 func watchVersionFile(){
-
+	//todo watchVersionFile
 }
