@@ -7,6 +7,9 @@ import (
 	"go/parser"
 	"os"
 	"go/token"
+	"io/ioutil"
+	"encoding/xml"
+	"strconv"
 )
 
 func Test_Get(t1 *testing.T) {
@@ -52,4 +55,41 @@ func  Parse(fileNode *ast.File) error {
 	})
 
 	return nil
+}
+func Test_XmlEncode(t1 *testing.T){
+	file, err := os.Open("servers.xml") // For read access.
+	if err != nil {
+		fmt.Printf("error: %v", err)
+		return
+	}
+	defer file.Close()
+	data, err := ioutil.ReadAll(file)
+	if err != nil {
+		fmt.Printf("error: %v", err)
+		return
+	}
+	v := VersionConfig{}
+	err = xml.Unmarshal(data, &v)
+	if err != nil {
+		fmt.Printf("error: %v", err)
+		return
+	}
+	fmt.Println(v)
+}
+func Test_XmlDncode(t1 *testing.T){
+
+	v := &VersionConfig{}
+	v.Sign = "123123"
+	for i:=0;i<10;i++{
+		v.FileList = append(v.FileList,&VersionConfigElement{
+			FilePath:"config/test"+strconv.Itoa(i)+".cfg",
+			Sign : "ssss",
+		})
+	}
+	content,err := xml.MarshalIndent(v, "  ", "    ")
+	if err != nil {
+		fmt.Printf("error: %v", err)
+		return
+	}
+	fmt.Println(string(content))
 }

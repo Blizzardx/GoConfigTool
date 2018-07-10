@@ -10,7 +10,7 @@ import (
 func init(){
 //Codec:= codec.MustGetCodec("msgpack")
 	type1 :=  reflect.TypeOf((*WorldPlayerInfo)(nil)).Elem()
-	configManager.Register(type1)
+	configManager.RegisterType(type1)
 	//fmt.Print(type1)
 
 	obj := reflect.New(type1).Interface()

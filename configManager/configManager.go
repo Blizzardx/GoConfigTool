@@ -9,6 +9,7 @@ import (
 	"reflect"
 	"fmt"
 	"log"
+	"sync"
 )
 
 
@@ -66,58 +67,40 @@ import (
 //	select {}
 //}
 
-var configPool map[string]interface{}
-var configCodeC Codec
-var typeMap map[string]reflect.Type
-type Codec interface {
-	// 将数据转换为字节数组
-	Encode(msgObj interface{}) (data interface{}, err error)
+var configCodeC ConfigDecoder
+var typeMap = map[string]reflect.Type{}
+var configPool  = &sync.Map{}
+var versionConfig *VersionConfig
+var configDirectory string
+var versionConfigPath string
 
-	// 将字节数组转换为数据
-	Decode(data interface{}, msgObj interface{}) error
 
-	// 编码器的名字
-	Name() string
-
-	MimeType() string
-}
-type ConfigTrigger interface{
-	LoadFile(fileName string ,fileExt string,fileContent []byte) (error,interface{})
-
-}
-func LoadFile(filePath string,trigger ConfigTrigger){
-	// load file
-	var fileContent []byte
-
-	err,content := trigger.LoadFile(filePath,filePath,fileContent)
-	if nil != err{
-		return
-	}
-	configPool[filePath] = content
-}
-
-type configTriggerss struct{
-
-}
-func (self *configTriggerss)LoadFile(fileName string ,fileExt string,fileContent []byte) (error,interface{}){
-
-	tmpType := typeMap[fileName]
-	obj := reflect.New(tmpType).Interface()
-	configCodeC.Decode(fileContent,nil)
-	configPool[fileName] = obj
-	return nil,nil
-}
-func Register(typeElem reflect.Type){
+func RegisterType(typeElem reflect.Type){
 	fmt.Println(typeElem.Name())
 
 	typeMap[typeElem.Name()]=typeElem
-
 }
-func SetCodeC(tmpCode Codec){
+func RegisterDecoder(tmpCode ConfigDecoder){
 	if nil == tmpCode{
 		log.Fatal("error on set codec")
 		return
 	}
 
 	configCodeC = tmpCode
+}
+func RegisterConfigPath(configPath string,versionConfig string){
+	versionConfigPath = versionConfig
+	configDirectory = configPath
+}
+func Init(configPath string,versionConfig1 string,tmpCode ConfigDecoder){
+	RegisterConfigPath(configPath,versionConfig1)
+	RegisterDecoder(tmpCode)
+
+	watchVersionFile()
+
+	onFileChange()
+}
+func GetConfig(configName string)interface{}{
+	v,_ := configPool.Load(configName)
+	return v
 }
