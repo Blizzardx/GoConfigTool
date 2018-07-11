@@ -3,8 +3,8 @@ package configManager
 import (
 	"encoding/xml"
 	"fmt"
-	"github.com/Blizzardx/GoConfigTool/auto"
 	"github.com/Blizzardx/GoConfigTool/decoder"
+	"github.com/Blizzardx/GoConfigTool/example/auto"
 	"go/ast"
 	"go/parser"
 	"go/token"

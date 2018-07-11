@@ -1,8 +1,8 @@
-package main
+package example
 
 import (
-	"github.com/Blizzardx/GoConfigTool/auto"
 	"github.com/Blizzardx/GoConfigTool/decoder"
+	"github.com/Blizzardx/GoConfigTool/example/auto"
 	"io/ioutil"
 	"testing"
 )
