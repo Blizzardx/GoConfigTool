@@ -2,32 +2,48 @@ package configManager
 
 import (
 	"errors"
+	"io/ioutil"
 	"log"
 	"os"
 	"reflect"
 	"runtime/debug"
+	"strings"
 	"time"
 )
 
 func loadFile(filePath string) error {
-	// load file
-	var fileContent []byte
+	fileType := strings.Replace(filePath, "\\", "/", -1)
+	tmpSlist := strings.Split(fileType, "/")
+	if len(tmpSlist) < 1 {
+		return errors.New("can't parser type by name " + fileType)
+	}
+	tmpSlist = strings.Split(tmpSlist[len(tmpSlist)-1], ".")
+	if len(tmpSlist) < 1 {
+		return errors.New("can't parser type by name " + fileType)
+	}
+	fileType = tmpSlist[0]
 
-	tmpType := typeMaps[filePath]
+	// load file
+	fileContent, err := loadFileByName(filePath)
+	if nil == fileContent || err != nil {
+		return errors.New("can't load file by path type by name " + filePath)
+	}
+
+	tmpType := typeMaps[fileType]
 
 	if nil == tmpType {
-		return errors.New("can't find type by name " + filePath)
+		return errors.New("can't find type by name " + fileType)
 	}
 	obj := reflect.New(tmpType).Interface()
 	if nil == obj {
-		return errors.New("instance obj fail by name " + filePath)
+		return errors.New("instance obj fail by name " + fileType)
 	}
-	err := currentConfigDecoder.Decode(fileContent, nil)
+	err = currentConfigDecoder.Decode(fileContent, obj)
 
 	if nil != err {
-		return err
+		return errors.New("error on decode file ty struct by name " + filePath + " " + err.Error())
 	}
-	totalConfigPool.Store(filePath, obj)
+	totalConfigPool.Store(fileType, obj)
 	return nil
 }
 func loadAllConfig(currentConfig *VersionConfig, newConfig *VersionConfig) {
@@ -114,6 +130,20 @@ func beginCheckVersionFileChange() {
 			onFileChange()
 		}
 	}
+}
+func loadFileByName(filePath string) ([]byte, error) {
+	file, err := os.Open(filePath) // For read access.
+	if err != nil {
+		log.Printf("error: %v", err)
+		return nil, err
+	}
+	defer file.Close()
+	data, err := ioutil.ReadAll(file)
+	if err != nil {
+		log.Printf("error: %v", err)
+		return nil, err
+	}
+	return data, err
 }
 func safeCall(f func()) {
 	defer func() {

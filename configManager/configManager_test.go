@@ -1,21 +1,24 @@
 package configManager
 
 import (
-	"testing"
-	"go/ast"
+	"encoding/xml"
 	"fmt"
+	"github.com/Blizzardx/GoConfigTool/auto"
+	"github.com/Blizzardx/GoConfigTool/decoder"
+	"go/ast"
 	"go/parser"
-	"os"
 	"go/token"
 	"io/ioutil"
-	"encoding/xml"
+	"os"
+	"reflect"
 	"strconv"
+	"testing"
 )
 
 func Test_Get(t1 *testing.T) {
 	var files []string
 
-	files = append(files,"E:/Project/Go/configTool/configManager/configManager.go")
+	files = append(files, "E:/Project/Go/configTool/configManager/configManager.go")
 
 	fs := token.NewFileSet()
 	for _, filename := range files {
@@ -35,7 +38,7 @@ func Test_Get(t1 *testing.T) {
 	}
 
 }
-func  Parse(fileNode *ast.File) error {
+func Parse(fileNode *ast.File) error {
 
 	fmt.Println(fileNode.Name.Name)
 
@@ -56,7 +59,7 @@ func  Parse(fileNode *ast.File) error {
 
 	return nil
 }
-func Test_XmlEncode(t1 *testing.T){
+func Test_XmlEncode(t1 *testing.T) {
 	file, err := os.Open("servers.xml") // For read access.
 	if err != nil {
 		fmt.Printf("error: %v", err)
@@ -76,17 +79,17 @@ func Test_XmlEncode(t1 *testing.T){
 	}
 	fmt.Println(v)
 }
-func Test_XmlDncode(t1 *testing.T){
+func Test_XmlDncode(t1 *testing.T) {
 
 	v := &VersionConfig{}
 	v.Sign = "123123"
-	for i:=0;i<10;i++{
-		v.FileList = append(v.FileList,&VersionConfigElement{
-			FilePath:"config/test"+strconv.Itoa(i)+".cfg",
-			Sign : "ssss",
+	for i := 0; i < 10; i++ {
+		v.FileList = append(v.FileList, &VersionConfigElement{
+			FilePath: "config/test" + strconv.Itoa(i) + ".cfg",
+			Sign:     "ssss",
 		})
 	}
-	content,err := xml.MarshalIndent(v, "  ", "    ")
+	content, err := xml.MarshalIndent(v, "  ", "    ")
 	if err != nil {
 		fmt.Printf("error: %v", err)
 		return
