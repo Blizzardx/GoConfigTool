@@ -1,6 +1,7 @@
 package configManager
 
 import (
+	"github.com/Blizzardx/GoConfigTool/common"
 	"log"
 	"reflect"
 	"sync"
@@ -10,7 +11,7 @@ import (
 var currentConfigDecoder ConfigDecoder
 var typeMaps = map[string]reflect.Type{}
 var totalConfigPool = &sync.Map{}
-var currentVersionConfigInfo *VersionConfig
+var currentVersionConfigInfo *common.VersionConfig
 var targetConfigDirectory string
 var targetVersionConfigName string
 var lastModifyVersionFileTime time.Time

@@ -2,11 +2,10 @@ package configManager
 
 import (
 	"errors"
-	"io/ioutil"
+	"github.com/Blizzardx/GoConfigTool/common"
 	"log"
 	"os"
 	"reflect"
-	"runtime/debug"
 	"strings"
 	"time"
 )
@@ -24,7 +23,7 @@ func loadFile(filePath string) error {
 	fileType = tmpSlist[0]
 
 	// load file
-	fileContent, err := loadFileByName(filePath)
+	fileContent, err := common.LoadFileByName(filePath)
 	if nil == fileContent || err != nil {
 		return errors.New("can't load file by path type by name " + filePath)
 	}
@@ -46,13 +45,13 @@ func loadFile(filePath string) error {
 	totalConfigPool.Store(fileType, obj)
 	return nil
 }
-func loadAllConfig(currentConfig *VersionConfig, newConfig *VersionConfig) {
+func loadAllConfig(currentConfig *common.VersionConfig, newConfig *common.VersionConfig) {
 	if currentConfig != nil && currentConfig.Sign == newConfig.Sign {
 		// do nothing
 		log.Println("load file ,but nothing change")
 		return
 	}
-	var needLoadConfigList []*VersionConfigElement
+	var needLoadConfigList []*common.VersionConfigElement
 
 	if nil == currentConfig {
 		// load all
@@ -83,7 +82,7 @@ func loadAllConfig(currentConfig *VersionConfig, newConfig *VersionConfig) {
 	doLoadTargetConfig(needLoadConfigList, newConfig)
 	return
 }
-func doLoadTargetConfig(needLoadConfigList []*VersionConfigElement, newVersionConfig *VersionConfig) {
+func doLoadTargetConfig(needLoadConfigList []*common.VersionConfigElement, newVersionConfig *common.VersionConfig) {
 	// do load file
 	for _, fileElem := range needLoadConfigList {
 		err := loadFile(fileElem.FilePath)
@@ -106,7 +105,7 @@ func onFileChange() {
 }
 func watchVersionFile() {
 
-	go safeCall(func() {
+	go common.SafeCall(func() {
 
 		tick := time.NewTicker(1 * time.Second)
 		for {
@@ -130,26 +129,4 @@ func beginCheckVersionFileChange() {
 			onFileChange()
 		}
 	}
-}
-func loadFileByName(filePath string) ([]byte, error) {
-	file, err := os.Open(filePath) // For read access.
-	if err != nil {
-		log.Printf("error: %v", err)
-		return nil, err
-	}
-	defer file.Close()
-	data, err := ioutil.ReadAll(file)
-	if err != nil {
-		log.Printf("error: %v", err)
-		return nil, err
-	}
-	return data, err
-}
-func safeCall(f func()) {
-	defer func() {
-		if err := recover(); err != nil {
-			log.Println(string(debug.Stack()))
-		}
-	}()
-	f()
 }

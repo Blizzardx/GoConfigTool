@@ -2,21 +2,13 @@ package configManager
 
 import (
 	"encoding/xml"
+	"github.com/Blizzardx/GoConfigTool/common"
 	"io/ioutil"
 	"log"
 	"os"
 )
 
-type VersionConfig struct {
-	Sign     string                  `xml:"sign"`
-	FileList []*VersionConfigElement `xml:"fileList"`
-}
-type VersionConfigElement struct {
-	FilePath string `xml:"filePath"`
-	Sign     string `xml:"sign"`
-}
-
-func loadVersionConfig(filePath string) (*VersionConfig, error) {
+func loadVersionConfig(filePath string) (*common.VersionConfig, error) {
 	file, err := os.Open(filePath) // For read access.
 	if err != nil {
 		log.Printf("error: %v", err)
@@ -28,7 +20,7 @@ func loadVersionConfig(filePath string) (*VersionConfig, error) {
 		log.Printf("error: %v", err)
 		return nil, err
 	}
-	v := &VersionConfig{}
+	v := &common.VersionConfig{}
 	err = xml.Unmarshal(data, v)
 	if err != nil {
 		log.Printf("error: %v", err)

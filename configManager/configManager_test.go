@@ -3,14 +3,12 @@ package configManager
 import (
 	"encoding/xml"
 	"fmt"
-	"github.com/Blizzardx/GoConfigTool/decoder"
-	"github.com/Blizzardx/GoConfigTool/example/auto"
+	"github.com/Blizzardx/GoConfigTool/common"
 	"go/ast"
 	"go/parser"
 	"go/token"
 	"io/ioutil"
 	"os"
-	"reflect"
 	"strconv"
 	"testing"
 )
@@ -71,7 +69,7 @@ func Test_XmlEncode(t1 *testing.T) {
 		fmt.Printf("error: %v", err)
 		return
 	}
-	v := VersionConfig{}
+	v := common.VersionConfig{}
 	err = xml.Unmarshal(data, &v)
 	if err != nil {
 		fmt.Printf("error: %v", err)
@@ -81,10 +79,10 @@ func Test_XmlEncode(t1 *testing.T) {
 }
 func Test_XmlDncode(t1 *testing.T) {
 
-	v := &VersionConfig{}
+	v := &common.VersionConfig{}
 	v.Sign = "123123"
 	for i := 0; i < 10; i++ {
-		v.FileList = append(v.FileList, &VersionConfigElement{
+		v.FileList = append(v.FileList, &common.VersionConfigElement{
 			FilePath: "config/test" + strconv.Itoa(i) + ".cfg",
 			Sign:     "ssss",
 		})

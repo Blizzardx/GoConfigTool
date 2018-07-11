@@ -1,10 +1,14 @@
-package example
+package main
 
 import (
+	"fmt"
+	"github.com/Blizzardx/GoConfigTool/common"
 	"github.com/Blizzardx/GoConfigTool/decoder"
 	"github.com/Blizzardx/GoConfigTool/example/auto"
 	"io/ioutil"
+	"sync"
 	"testing"
+	"time"
 )
 
 func Test_GenTestConfig(t1 *testing.T) {
@@ -68,5 +72,33 @@ func Test_GenTestConfig(t1 *testing.T) {
 	}
 	content, _ = codeC.Encode(m6)
 	ioutil.WriteFile("config/WorldApplyCreateLeagueInfo.cfg", content.([]byte), 0666)
+
+}
+func Test_Queue(t1 *testing.T) {
+	tmpQueue := common.NewSyncQueue()
+
+	go func() {
+		for {
+			for i := 0; i < 10; i++ {
+				tmpQueue.Offer(i)
+			}
+		}
+	}()
+	go func() {
+
+		for {
+			if tmpQueue.Length() > 0 {
+				elem := tmpQueue.Poll()
+				fmt.Println(elem.(int))
+			}
+		}
+	}()
+	time.Sleep(1 * time.Second)
+}
+func Test_SyncMap(t1 *testing.T) {
+	var currentLoadingFileMap *sync.Map = &sync.Map{}
+	currentLoadingFileMap.Store("aaaaa", "bbbb")
+	elem, _ := currentLoadingFileMap.Load("aaaaa")
+	fmt.Println(elem.(string))
 
 }
