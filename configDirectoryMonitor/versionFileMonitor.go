@@ -1,4 +1,4 @@
-package configDirectoryWatcher
+package configDirectoryMonitor
 
 import (
 	"encoding/xml"
@@ -7,6 +7,7 @@ import (
 	"hash/crc32"
 	"log"
 	"strconv"
+	"sync"
 	"time"
 )
 
@@ -23,7 +24,7 @@ func tickNeedUpdateVersionFileQueue() {
 }
 func beginCheckVersionChange() {
 	isChange := false
-
+	tmpChangeVersionMap := map[string]string{}
 	for needUpdateVersionFileQueue.Length() != 0 {
 		fileInstance := needUpdateVersionFileQueue.Poll()
 		if nil == fileInstance {
@@ -33,16 +34,24 @@ func beginCheckVersionChange() {
 
 		if tryUpdateVersionFile(fileElem) {
 			isChange = true
+			tmpChangeVersionMap[fileElem.filePath] = ""
 		}
 	}
 	if isChange {
 		// save version file
-		saveVersionFile()
+		saveVersionFileByChangedMap(tmpChangeVersionMap)
 	}
 }
 func tryUpdateVersionFile(newFileElem *simpleFileInfo) bool {
+	currentVersionInfoByDirInterface, _ := currentVersionInfo.Load(newFileElem.filePath)
+	if nil == currentVersionInfoByDirInterface {
+		currentVersionInfoByDirInterface = &sync.Map{}
+		currentVersionInfo.Store(newFileElem.filePath, currentVersionInfoByDirInterface)
+	}
+	currentVersionInfoByDir := currentVersionInfoByDirInterface.(*sync.Map)
+
 	// check is file in map
-	fileElemInterface, _ := currentVersionInfo.Load(newFileElem.filePath + newFileElem.fileName)
+	fileElemInterface, _ := currentVersionInfoByDir.Load(newFileElem.filePath + newFileElem.fileName)
 	if nil != fileElemInterface {
 		if fileElemInterface.(*simpleFileInfo).fileSign == newFileElem.fileSign {
 			// do nothing
@@ -51,17 +60,29 @@ func tryUpdateVersionFile(newFileElem *simpleFileInfo) bool {
 	}
 
 	// add to new version file
-	currentVersionInfo.Store(newFileElem.filePath+newFileElem.fileName, newFileElem)
+	currentVersionInfoByDir.Store(newFileElem.filePath+newFileElem.fileName, newFileElem)
 	return true
 }
-func saveVersionFile() {
+func saveVersionFileByChangedMap(changedDirectoryMap map[string]string) {
+	for filePath := range changedDirectoryMap {
+		currentVersionInfoByDirInterface, _ := currentVersionInfo.Load(filePath)
+		if nil == currentVersionInfoByDirInterface {
+			continue
+		}
+		currentVersionInfoByDir := currentVersionInfoByDirInterface.(*sync.Map)
+		saveVersionFile(filePath, currentVersionInfoByDir)
+	}
+}
+func saveVersionFile(filePath string, currentVersion *sync.Map) {
+
 	versionConfig := &common.VersionConfig{}
-	currentVersionInfo.Range(func(key, value interface{}) bool {
+	currentVersion.Range(func(key, value interface{}) bool {
 		fileElem := value.(*simpleFileInfo)
 		versionConfig.FileList = append(versionConfig.FileList, &common.VersionConfigElement{
 			FilePath: fileElem.fileName,
 			Sign:     fileElem.fileSign,
 		})
+
 		return true
 	})
 
@@ -81,9 +102,11 @@ func saveVersionFile() {
 		return
 	}
 
-	err = common.WriteFileByName(versionConfigOutputName, content)
+	err = common.WriteFileByName(filePath+"/"+versionConfigOutputName, content)
 	if err != nil {
 		fmt.Println("error on write version config " + err.Error())
 		return
 	}
+
+	fmt.Println("refresh version file at path " + filePath + " at time " + time.Now().Format("Mon Jan 2 15:04:05 -0700 MST 2006"))
 }

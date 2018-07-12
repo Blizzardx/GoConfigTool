@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/Blizzardx/GoConfigTool/common"
+	"github.com/Blizzardx/GoConfigTool/configDirectoryMonitor"
 	"github.com/Blizzardx/GoConfigTool/decoder"
 	"github.com/Blizzardx/GoConfigTool/example/auto"
 	"io/ioutil"
@@ -101,4 +102,9 @@ func Test_SyncMap(t1 *testing.T) {
 	elem, _ := currentLoadingFileMap.Load("aaaaa")
 	fmt.Println(elem.(string))
 
+}
+func Test_ConfigWatcher(t1 *testing.T) {
+	configDirectoryMonitor.Init("example/config/", "version.cfg", 90)
+
+	select {}
 }

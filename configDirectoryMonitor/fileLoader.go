@@ -1,4 +1,4 @@
-package configDirectoryWatcher
+package configDirectoryMonitor
 
 import (
 	"github.com/Blizzardx/GoConfigTool/common"

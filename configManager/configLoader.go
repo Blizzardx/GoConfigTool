@@ -85,7 +85,7 @@ func loadAllConfig(currentConfig *common.VersionConfig, newConfig *common.Versio
 func doLoadTargetConfig(needLoadConfigList []*common.VersionConfigElement, newVersionConfig *common.VersionConfig) {
 	// do load file
 	for _, fileElem := range needLoadConfigList {
-		err := loadFile(fileElem.FilePath)
+		err := loadFile(targetConfigDirectory + "/" + fileElem.FilePath)
 		if nil != err {
 			// fixed as fail
 			fileElem.Sign = ""

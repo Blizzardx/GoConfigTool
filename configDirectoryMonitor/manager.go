@@ -1,10 +1,10 @@
-package configDirectoryWatcher
+package configDirectoryMonitor
 
 import (
 	"github.com/Blizzardx/GoConfigTool/common"
-	"io/ioutil"
 	"log"
 	"sync"
+	"time"
 )
 
 //需要变更的文件列表
@@ -22,6 +22,8 @@ var currentVersionInfo = &sync.Map{}
 //需要变更刷新版本库的文件列表
 var needUpdateVersionFileQueue = common.NewSyncQueue()
 
+var currentFileState = map[string]*fileState{}
+
 //input 文件加载器同时工作的最大数量
 var maxLoaderCount = 100
 
@@ -35,6 +37,10 @@ type simpleFileInfo struct {
 	filePath string
 	fileName string
 	fileSign string
+}
+type fileState struct {
+	filePath string
+	modTime  time.Time
 }
 
 func Init(workspace string, versionConfigName string, maxFileLoaderCount int) {
@@ -56,4 +62,5 @@ func Init(workspace string, versionConfigName string, maxFileLoaderCount int) {
 
 	tickFileChangeQueue()
 	tickNeedUpdateVersionFileQueue()
+	checkDirectoryChange()
 }

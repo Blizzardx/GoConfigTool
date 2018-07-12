@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/Blizzardx/GoConfigTool/configDirectoryMonitor"
 	"github.com/Blizzardx/GoConfigTool/configManager"
 	"github.com/Blizzardx/GoConfigTool/decoder"
 	"github.com/Blizzardx/GoConfigTool/example/auto"
@@ -20,4 +21,9 @@ func main() {
 	log.Printf("%v", config)
 
 	time.Sleep(1 * time.Minute)
+}
+func main1() {
+	configDirectoryMonitor.Init("example/config", "version.cfg", 100)
+
+	select {}
 }
