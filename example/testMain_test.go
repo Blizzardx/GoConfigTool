@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/Blizzardx/GoConfigTool/classProvisionGenTool/protobuf"
 	"github.com/Blizzardx/GoConfigTool/common"
 	"github.com/Blizzardx/GoConfigTool/configDirectoryMonitor"
 	"github.com/Blizzardx/GoConfigTool/decoder"
@@ -107,4 +108,22 @@ func Test_ConfigWatcher(t1 *testing.T) {
 	configDirectoryMonitor.Init("example/config/", "version.cfg", 90)
 
 	select {}
+}
+func Test_GenTemplateCode(t1 *testing.T) {
+	classInfo := &protobuf.PBClassInfo{
+		ClassName: "Chat",
+		ClassType: "message",
+	}
+	classInfo.FieldList = append(classInfo.FieldList, &protobuf.PBField{
+		FieldName:  "content",
+		FieldType:  "string",
+		FieldIndex: 2,
+	})
+	templateInfo := &protobuf.PBTemplateInfo{
+		PackageName: "MaJiangProto",
+	}
+	templateInfo.ClassList = append(templateInfo.ClassList, classInfo)
+
+	protobuf.GenProvision("", templateInfo)
+
 }

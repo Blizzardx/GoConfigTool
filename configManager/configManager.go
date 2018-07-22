@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-var currentConfigDecoder ConfigDecoder
+var currentConfigDecoder common.ConfigDecoder
 var typeMaps = map[string]reflect.Type{}
 var totalConfigPool = &sync.Map{}
 var currentVersionConfigInfo *common.VersionConfig
@@ -26,7 +26,7 @@ func RegisterType(typeElem reflect.Type) {
 
 	typeMaps[typeElem.Name()] = typeElem
 }
-func RegisterDecoder(tmpCode ConfigDecoder) {
+func RegisterDecoder(tmpCode common.ConfigDecoder) {
 	if nil == tmpCode {
 		log.Println("error on set config decoder nil == tmpCode")
 		return
@@ -38,7 +38,7 @@ func RegisterConfigPath(configDirectory string, versionConfigPath string) {
 	targetVersionConfigName = versionConfigPath
 	targetConfigDirectory = configDirectory
 }
-func Init(configDirectory string, versionConfigPath string, configDecoder ConfigDecoder) {
+func Init(configDirectory string, versionConfigPath string, configDecoder common.ConfigDecoder) {
 	log.Println("begin init config manager")
 	RegisterConfigPath(configDirectory, versionConfigPath)
 	RegisterDecoder(configDecoder)
