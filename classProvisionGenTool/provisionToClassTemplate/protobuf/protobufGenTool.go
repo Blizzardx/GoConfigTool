@@ -100,10 +100,6 @@ func convertToPBFieldType(fieldTypeStr string) string {
 	fieldType := define.ConvertStrToFieldType(fieldTypeStr)
 
 	switch fieldType {
-	case define.FieldType_Int8:
-		return "int32"
-	case define.FieldType_Int16:
-		return "int32"
 	case define.FieldType_Int32:
 		return "int32"
 	case define.FieldType_Int64:

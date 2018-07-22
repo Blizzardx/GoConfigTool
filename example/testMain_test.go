@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/Blizzardx/GoConfigTool/classProvisionGenTool/protobuf"
+	"github.com/Blizzardx/GoConfigTool/classProvisionGenTool/provisionToClassTemplate/protobuf"
 	"github.com/Blizzardx/GoConfigTool/common"
 	"github.com/Blizzardx/GoConfigTool/configDirectoryMonitor"
 	"github.com/Blizzardx/GoConfigTool/decoder"
@@ -13,6 +13,19 @@ import (
 	"time"
 )
 
+type lineInfo struct {
+	Id int32
+}
+
+func Test_a(t1 *testing.T) {
+
+	line := &lineInfo{}
+	err := common.Parser_int32("19", &line.Id)
+	if nil != err {
+		fmt.Println(err)
+	}
+	fmt.Println(line.Id)
+}
 func Test_GenTestConfig(t1 *testing.T) {
 	codeC := new(decoder.MsgPackDecodeC)
 	m1 := &auto.WGQueryPlayerInfos{
@@ -124,6 +137,6 @@ func Test_GenTemplateCode(t1 *testing.T) {
 	}
 	templateInfo.ClassList = append(templateInfo.ClassList, classInfo)
 
-	protobuf.GenProvision("", templateInfo)
+	//protobuf.GenProvision("", templateInfo)
 
 }

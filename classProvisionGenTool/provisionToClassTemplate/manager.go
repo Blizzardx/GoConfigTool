@@ -45,10 +45,8 @@ func convertConfigInfo(packageName string, configInfo *define.ConfigInfo) (*defi
 		if !tmpIsFoundField {
 			return nil, errors.New("  table key field name '" + configInfo.GlobalInfo.TableKeyFieldName + "' is not found at field list")
 		}
-	} else if configInfo.GlobalInfo.TableType == "list" {
-		tableFieldInfo.IsList = true
 	} else {
-		return nil, errors.New(configInfo.GlobalInfo.TableType + " is error table type ,must be 'map' or 'list' ")
+		tableFieldInfo.IsList = true
 	}
 
 	tableClass.FieldList = append(tableClass.FieldList, tableFieldInfo)
@@ -58,13 +56,18 @@ func convertConfigInfo(packageName string, configInfo *define.ConfigInfo) (*defi
 	lineClass := &define.ClassInfo{
 		ClassName: configInfo.TableName + "LineInfo",
 	}
-	for index, lineElem := range configInfo.LineInfo {
+	index := 1
+	for _, lineElem := range configInfo.LineInfo {
+		if lineElem.FieldName == "" {
+			continue
+		}
 		lineClass.FieldList = append(lineClass.FieldList, &define.FieldInfo{
 			FieldType:  lineElem.FieldType,
 			FieldName:  lineElem.FieldName,
-			FieldIndex: int16(index + 1),
+			FieldIndex: int16(index),
 			IsList:     lineElem.IsList,
 		})
+		index++
 	}
 	result.ClassList = append(result.ClassList, lineClass)
 	return result, nil
