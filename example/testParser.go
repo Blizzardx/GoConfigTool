@@ -17,12 +17,12 @@ type itemConfigTable struct {
 	Content map[int32]*itemLine
 }
 
-func ParserConfig_itemConfigTable(decoder common.ConfigDecoder, configContent [][]string) ([]byte, error) {
+func parserConfig_itemConfigTable(decoder common.ConfigDecoder, configContent [][]string) ([]byte, error) {
 	table := &itemConfigTable{}
 	table.Content = map[int32]*itemLine{}
 
 	for line, lineContent := range configContent {
-		lineElem, err := ParserLine_itemConfigTable(lineContent)
+		lineElem, err := parserLine_itemConfigTable(lineContent)
 		if nil != err {
 			str := fmt.Sprintf("error on load config itemConfigTable at line: " + strconv.Itoa(line+1) + " " + err.Error())
 			return nil, errors.New(str)
@@ -39,7 +39,7 @@ func ParserConfig_itemConfigTable(decoder common.ConfigDecoder, configContent []
 	}
 	return content.([]byte), nil
 }
-func ParserLine_itemConfigTable(lineContent []string) (*itemLine, error) {
+func parserLine_itemConfigTable(lineContent []string) (*itemLine, error) {
 	line := &itemLine{}
 	var err error = nil
 	columnIndex := 0

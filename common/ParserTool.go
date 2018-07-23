@@ -77,7 +77,6 @@ func CheckValueLimit_int32(value int32, limitMin string, limitMax string) error 
 	}
 	return nil
 }
-
 func CheckValueLimit_int64(value int64, limitMin string, limitMax string) error {
 	var min int64 = 0
 	var max int64 = 0
@@ -149,4 +148,13 @@ func CheckValueLimit_float64(value float64, limitMin string, limitMax string) er
 		}
 	}
 	return nil
+}
+func IsTypeCanCheckLimit(fieldType string) bool {
+	if fieldType == "int32" ||
+		fieldType == "int64" ||
+		fieldType == "float32" ||
+		fieldType == "float64" {
+		return true
+	}
+	return false
 }

@@ -1,19 +1,5 @@
 package genParserCode
 
-import "github.com/Blizzardx/GoConfigTool/classProvisionGenTool/define"
-
-//生成配置解析代码
-
-type ExcelConfigInfo struct {
-	Content   [][]string
-	Provision *define.ConfigInfo
-}
-
-func GenParserCode(outputDir string, configInfoList []*ExcelConfigInfo) error {
-
-	return nil
-}
-
 type GenParserCodeTableInfo struct {
 	PackageName        string
 	ClassName          string
@@ -38,7 +24,7 @@ import (
 	{{.IsNeedImportString}}
 )
 
-func ParserConfig_{{.ClassName}}(decoder common.ConfigDecoder, configContent [][]string) ([]byte, error) {
+func parserConfig_{{.ClassName}}(decoder common.ConfigDecoder, configContent [][]string) ([]byte, error) {
 	{{.TableTemplate}}
 
 	content, err := decoder.Encode(table)
@@ -47,7 +33,7 @@ func ParserConfig_{{.ClassName}}(decoder common.ConfigDecoder, configContent [][
 	}
 	return content.([]byte), nil
 }
-func ParserLine_{{.ClassName}}(lineContent []string) (*{{.LineClassName}}, error) {
+func parserLine_{{.ClassName}}(lineContent []string) (*{{.LineClassName}}, error) {
 	line := &{{.LineClassName}}{}
 	var err error = nil
 	columnIndex := 0
@@ -69,7 +55,7 @@ const codeTemplate_TableList = `
 
 	table := &{{.ClassName}}{}
 	for line, lineContent := range configContent {
-		lineElem, err := ParserLine_{{.ClassName}}(lineContent)
+		lineElem, err :=parserLine_{{.ClassName}}(lineContent)
 		if nil != err {
 			str := fmt.Sprintf("error on load config itemConfigTable at line: " + strconv.Itoa(line+1) + " " + err.Error())
 			return nil, errors.New(str)
@@ -90,7 +76,7 @@ const codeTemplate_TableMap = `
 	table := &{{.ClassName}}{}
 	table.Content = map[int32]*{{.LineClassName}}{}
 	for line, lineContent := range configContent {
-		lineElem, err := ParserLine_{{.ClassName}}(lineContent)
+		lineElem, err := parserLine_{{.ClassName}}(lineContent)
 		if nil != err {
 			str := fmt.Sprintf("error on load config itemConfigTable at line: " + strconv.Itoa(line+1) + " " + err.Error())
 			return nil, errors.New(str)
@@ -179,5 +165,107 @@ const codeTemplate_CheckFieldListLimit = `
 	if err != nil {
 		return nil, errors.New(" column " + strconv.Itoa(columnIndex) + "  error on check min and max" + err.Error())
 	}
+
+`
+
+type GenParserCode_Main struct {
+	ConfigList  []*GenParserCode_MainConfigElem
+	Decoder     string
+	PackageName string
+}
+type GenParserCode_MainConfigElem struct {
+	ConfigName string
+}
+
+const codeTemplate_Main = `
+
+package {{.PackageName}}
+
+import (
+	"fmt"
+	"github.com/Blizzardx/GoConfigTool/excelConfigParserTool/excelHandler"
+	"github.com/Blizzardx/GoConfigTool/common"
+	"github.com/Blizzardx/GoConfigTool/decoder"
+)
+
+var handlerMap = map[string]func(common.ConfigDecoder, [][]string) ([]byte, error){}
+
+func init() {
+{{range .ConfigList}}
+	registerParserFunc("{{.ConfigName}}", parserConfig_{{.ConfigName}})
+	{{end}}
+
+}
+func registerParserFunc(configName string, handler func(common.ConfigDecoder, [][]string) ([]byte, error)) {
+	handlerMap[configName] = handler
+}
+func ParserConfig(configName string, inputDir string, outputPath string) {
+	handler := handlerMap[configName]
+	if nil == handlerMap {
+		fmt.Println("error on get handler by config name ", configName)
+		return
+	}
+	// read config
+	content, err := excelHandler.ReadExcelFile(inputDir + "/" + configName + ".xlsx")
+	if nil != err {
+		fmt.Println("error on get file provison file ", err.Error(), configName)
+		return
+	}
+	result, err := handler(&decoder.{{.Decoder}}{}, excelHandler.FixExcelFile(content))
+	if nil != err {
+		fmt.Println("error on parser config ", err.Error(), configName)
+		return
+	}
+	err = common.WriteFileByName(outputPath+"/"+configName+".bytes", result)
+	if nil != err {
+		fmt.Println("error on write result config ", err.Error(), configName)
+		return
+	}
+}
+func ParserAllConfig(outputPath string, inputDir string) {
+	for fileName := range handlerMap {
+		ParserConfig(fileName, inputDir, outputPath)
+	}
+}
+
+
+`
+
+type GenParserCode_Launch struct {
+	ImportPackage string
+	PackageName   string
+	//"github.com/Blizzardx/GoConfigTool/excelConfigParserTool/z_example/sampleWorkspace/classDefineDir/auto"
+}
+
+const codeTemplate_Launch = `
+package main
+
+import (
+	"fmt"
+	"{{.ImportPackage}}"
+	"os"
+)
+
+	func main() {
+	if len(os.Args) < 3 {
+
+		fmt.Println("error input args ,need outputDir,inputDir ")
+		os.Exit(1)
+	}
+
+	outputDir := os.Args[1]
+	inputDir := os.Args[2]
+	targetConfig := ""
+	if len(os.Args) > 3 {
+		targetConfig = os.Args[3]
+	}
+
+	if targetConfig == "" {
+		// load all
+		{{.PackageName}}.ParserAllConfig(outputDir, inputDir)
+	} else {
+		{{.PackageName}}.ParserConfig(targetConfig, inputDir, outputDir)
+	}
+}
 
 `

@@ -3,7 +3,7 @@ package protobuf
 import (
 	"bytes"
 	"fmt"
-	"github.com/Blizzardx/GoConfigTool/classProvisionGenTool/define"
+	"github.com/Blizzardx/GoConfigTool/excelConfigParserTool/define"
 	"text/template"
 )
 
@@ -26,9 +26,9 @@ import {{.ImportPackage}};
 
 {{range .FieldList}}
 	{{.FieldType}} {{.FieldName}} = {{.FieldIndex}};
-}
 	{{end}}
 
+}
 	{{end}}
 
 `
@@ -63,7 +63,7 @@ func (self *ProtobufTemplateGenTool) GenProvision(templateStr string, provisionC
 	return generateCode(templateStr, templateInfo)
 }
 func (self *ProtobufTemplateGenTool) GetSuffix() string {
-	return ".pb"
+	return ".proto"
 }
 func convertToPBInfo(provisionClass *define.TemplateInfo) *PBTemplateInfo {
 	result := &PBTemplateInfo{

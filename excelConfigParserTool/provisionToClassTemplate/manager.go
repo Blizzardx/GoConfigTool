@@ -4,8 +4,8 @@ package provisionToClassTemplate
 
 import (
 	"errors"
-	"github.com/Blizzardx/GoConfigTool/classProvisionGenTool/define"
 	"github.com/Blizzardx/GoConfigTool/common"
+	"github.com/Blizzardx/GoConfigTool/excelConfigParserTool/define"
 )
 
 type ConfigTemplateGenerator interface {

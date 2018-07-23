@@ -2,11 +2,11 @@ package main
 
 import (
 	"fmt"
-	"github.com/Blizzardx/GoConfigTool/classProvisionGenTool/provisionToClassTemplate/protobuf"
 	"github.com/Blizzardx/GoConfigTool/common"
 	"github.com/Blizzardx/GoConfigTool/configDirectoryMonitor"
 	"github.com/Blizzardx/GoConfigTool/decoder"
 	"github.com/Blizzardx/GoConfigTool/example/auto"
+	"github.com/Blizzardx/GoConfigTool/excelConfigParserTool/provisionToClassTemplate/protobuf"
 	"io/ioutil"
 	"sync"
 	"testing"
