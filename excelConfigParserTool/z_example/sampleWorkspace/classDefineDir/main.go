@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/Blizzardx/GoConfigTool/excelConfigParserTool/z_example/sampleWorkspace/classDefineDir/auto"
+	"github.com/Blizzardx/GoConfigTool/excelConfigParserTool/z_example/sampleWorkspace/classDefineDir/config"
 	"os"
 )
 
@@ -22,8 +22,8 @@ func main() {
 
 	if targetConfig == "" {
 		// load all
-		auto.ParserAllConfig(outputDir, inputDir)
+		config.ParserAllConfig(outputDir, inputDir)
 	} else {
-		auto.ParserConfig(targetConfig, inputDir, outputDir)
+		config.ParserConfig(targetConfig, inputDir, outputDir)
 	}
 }

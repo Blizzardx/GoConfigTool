@@ -192,7 +192,7 @@ var handlerMap = map[string]func(common.ConfigDecoder, [][]string) ([]byte, erro
 
 func init() {
 {{range .ConfigList}}
-	registerParserFunc("{{.ConfigName}}", parserConfig_{{.ConfigName}})
+	registerParserFunc("{{.ConfigName}}", parserConfig_{{.ConfigName}}Config)
 	{{end}}
 
 }

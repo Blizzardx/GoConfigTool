@@ -2,7 +2,7 @@
 // DO NOT EDIT!
 syntax = "proto3";
 
-package auto;
+package config;
 
 
 
@@ -30,7 +30,7 @@ message BasicItem_CommonLineInfo{
 	
 	int32 Acauire = 6;
 	
-	int32 ConsumeItem = 7;
+	string ConsumeItem = 7;
 	
 	int32 ConsumeCoin = 8;
 	

@@ -26,7 +26,7 @@ func GenParserCode(importPath string, packageName string, decoder string, output
 		if nil != err {
 			return err
 		}
-		mainClass.ConfigList = append(mainClass.ConfigList, &GenParserCode_MainConfigElem{ConfigName: elem.TableName + "Config"})
+		mainClass.ConfigList = append(mainClass.ConfigList, &GenParserCode_MainConfigElem{ConfigName: elem.TableName})
 	}
 
 	content, err := generateCode(codeTemplate_Main, mainClass, true)

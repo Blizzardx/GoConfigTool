@@ -62,7 +62,7 @@ func CheckValueLimit_int32(value int32, limitMin string, limitMax string) error 
 			return err
 		}
 
-		if value > min {
+		if value < min {
 			return errors.New("error on check limit ")
 		}
 	}
@@ -71,7 +71,7 @@ func CheckValueLimit_int32(value int32, limitMin string, limitMax string) error 
 		if nil != err {
 			return err
 		}
-		if value < max {
+		if value > max {
 			return errors.New("error on check limit ")
 		}
 	}
@@ -86,7 +86,7 @@ func CheckValueLimit_int64(value int64, limitMin string, limitMax string) error 
 			return err
 		}
 
-		if value > min {
+		if value < min {
 			return errors.New("error on check limit ")
 		}
 	}
@@ -95,7 +95,7 @@ func CheckValueLimit_int64(value int64, limitMin string, limitMax string) error 
 		if nil != err {
 			return err
 		}
-		if value < max {
+		if value > max {
 			return errors.New("error on check limit ")
 		}
 	}
@@ -110,7 +110,7 @@ func CheckValueLimit_float32(value float32, limitMin string, limitMax string) er
 			return err
 		}
 
-		if value > min {
+		if value < min {
 			return errors.New("error on check limit ")
 		}
 	}
@@ -119,7 +119,7 @@ func CheckValueLimit_float32(value float32, limitMin string, limitMax string) er
 		if nil != err {
 			return err
 		}
-		if value < max {
+		if value > max {
 			return errors.New("error on check limit ")
 		}
 	}
@@ -134,7 +134,7 @@ func CheckValueLimit_float64(value float64, limitMin string, limitMax string) er
 			return err
 		}
 
-		if value > min {
+		if value < min {
 			return errors.New("error on check limit ")
 		}
 	}
@@ -143,7 +143,7 @@ func CheckValueLimit_float64(value float64, limitMin string, limitMax string) er
 		if nil != err {
 			return err
 		}
-		if value < max {
+		if value > max {
 			return errors.New("error on check limit ")
 		}
 	}

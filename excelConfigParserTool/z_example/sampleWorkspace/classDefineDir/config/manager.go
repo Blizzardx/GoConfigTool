@@ -1,4 +1,4 @@
-package auto
+package config
 
 import (
 	"fmt"
@@ -11,7 +11,7 @@ var handlerMap = map[string]func(common.ConfigDecoder, [][]string) ([]byte, erro
 
 func init() {
 
-	registerParserFunc("BasicItem_CommonConfig", parserConfig_BasicItem_CommonConfig)
+	registerParserFunc("BasicItem_Common", parserConfig_BasicItem_CommonConfig)
 
 }
 func registerParserFunc(configName string, handler func(common.ConfigDecoder, [][]string) ([]byte, error)) {
