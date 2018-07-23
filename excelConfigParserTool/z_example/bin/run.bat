@@ -19,6 +19,7 @@ mkdir %GO_OUTDIR%
 protoc.exe --plugin=protoc-gen-go=protoc-gen-go.exe --go_out %GO_OUTDIR% --proto_path  %classDefinePath% %classDefinePath%/*.proto
 
 @IF %ERRORLEVEL% NEQ 0 pause
+echo 这里需要删除import文件夹 并创建目录结构
 
 cd ../import/config
 set parserOutputPath=%cd%
@@ -32,10 +33,10 @@ cd ../protobufTool/go
 set copyGoPath=%cd%
 
 echo begin copy...
-::拷贝刚刚生成的go文件
-copy *.go %parserOutputPath%
-cd ../../
 
+copy *.go %parserOutputPath%
+
+cd ../../
 
 set GOARCH=amd64
 set GOOS=windows
