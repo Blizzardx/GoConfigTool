@@ -10,6 +10,11 @@ import (
 
 func main() {
 	fmt.Println(getCurrentPath())
+	fmt.Println(parserParentPath(getCurrentPath(), 1))
+	fmt.Println(parserParentPath(getCurrentPath(), 2))
+	fmt.Println(parserParentPath(getCurrentPath(), 3))
+	fmt.Println(parserParentPath(getCurrentPath(), 4))
+
 	return
 	execCmd("E:/porject/GoConfigTool/src/github.com/Blizzardx/GoConfigTool/excelConfigParserTool/z_example/bin/lib/tool/compileGoProject.bat",
 		"amd64",
@@ -18,6 +23,22 @@ func main() {
 		"windows/3_genConfigDefine",
 		"github.com/Blizzardx/GoConfigTool/excelConfigParserTool/z_example/3_genConfigDefine")
 
+}
+func parserParentPath(sourcePath string, count int) string {
+	fixedPath := strings.Replace(sourcePath, "\\", "/", -1)
+	pathList := strings.Split(fixedPath, "/")
+	length := len(pathList) - count
+	if length <= 0 {
+		return ""
+	}
+	resPath := ""
+	for i := 0; i < length; i++ {
+		resPath += pathList[i]
+		if i < length-1 {
+			resPath += "/"
+		}
+	}
+	return resPath
 }
 func getCurrentPath() string {
 	s, err := exec.LookPath(os.Args[0])
@@ -68,4 +89,13 @@ func test(name string, arg ...string) {
 	}
 
 	fmt.Println("Execute finished:" + string(out_bytes))
+}
+func compileGoProject() {
+
+	execCmd("E:/porject/GoConfigTool/src/github.com/Blizzardx/GoConfigTool/excelConfigParserTool/z_example/bin/lib/tool/compileGoProject.bat",
+		"amd64",
+		"windows",
+		"E:/porject/GoConfigTool/",
+		"windows/3_genConfigDefine",
+		"github.com/Blizzardx/GoConfigTool/excelConfigParserTool/z_example/3_genConfigDefine")
 }
