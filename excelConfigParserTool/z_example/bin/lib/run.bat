@@ -1,7 +1,11 @@
-cd config
+cd ../input
 set configPath=%cd%
+cd ../tmp/
 
-cd ../classDefine
+rd /s/q classDefine
+mkdir classDefine
+
+cd classDefine
 set classDefinePath=%cd%
 
 cd ../windows
@@ -9,9 +13,9 @@ cd ../windows
 
 @IF %ERRORLEVEL% NEQ 0 pause
 
-cd ../protobufTool
+cd ../../lib/protobufTool
 
-set GO_OUTDIR="go/"
+set GO_OUTDIR="../../tmp/go/"
 
 rd /s/q %GO_OUTDIR%
 mkdir %GO_OUTDIR%
@@ -19,8 +23,8 @@ mkdir %GO_OUTDIR%
 protoc.exe --plugin=protoc-gen-go=protoc-gen-go.exe --go_out %GO_OUTDIR% --proto_path  %classDefinePath% %classDefinePath%/*.proto
 
 @IF %ERRORLEVEL% NEQ 0 pause
-echo 这里需要删除import文件夹 并创建目录结构
-cd ..
+
+cd ../../tmp
 rd /s/q import
 mkdir import
 cd import
@@ -30,40 +34,40 @@ cd config
 set parserOutputPath=%cd%
 
 cd ../../windows
-2_genConfigParser.exe %configPath% %parserOutputPath% pb config "github.com/Blizzardx/GoConfigTool/excelConfigParserTool/z_example/bin/import/config"
+2_genConfigParser.exe %configPath% %parserOutputPath% pb config "github.com/Blizzardx/GoConfigTool/excelConfigParserTool/z_example/bin/tmp/import/config"
 
 @IF %ERRORLEVEL% NEQ 0 pause
 
-cd ../protobufTool/go
+cd ../go
 set copyGoPath=%cd%
 
 echo begin copy...
 
 copy *.go %parserOutputPath%
 
-cd ../../
+cd ..
 
 set GOARCH=amd64
 set GOOS=windows
 
 set CURR=%cd%
-cd ..\..\..\..\..\..\..\
+cd ..\..\..\..\..\..\..\..\
 
 set GOPATH=%cd%
 cd %CURR%
 
-go build -o windows/import.exe github.com/Blizzardx/GoConfigTool/excelConfigParserTool/z_example/bin/import
+go build -o windows/import.exe github.com/Blizzardx/GoConfigTool/excelConfigParserTool/z_example/bin/tmp/import
 
 @IF %ERRORLEVEL% NEQ 0 pause
 
-
+cd ..
 rd /s/q output
 mkdir output
 
 cd output
 set OutputPath=%cd%
 
-cd ../windows
+cd ../tmp/windows
 import.exe %OutputPath% %configPath%
 
 @IF %ERRORLEVEL% NEQ 0 pause

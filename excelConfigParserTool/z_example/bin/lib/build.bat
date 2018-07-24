@@ -1,13 +1,31 @@
 
+cd ..
+
+:: create directory input
+if exist input (
+		echo directory input already exist
+	) else (
+		echo create input
+		md input
+	)
+
+:: create directory tmp
+if exist tmp (
+		echo directory tmp already exist
+	) else (
+		echo create tmp
+		md tmp
+	)
+cd tmp
+
 set GOARCH=amd64
 set GOOS=windows
 
 set CURR=%cd%
-cd ..\..\..\..\..\..\..\
+cd ..\..\..\..\..\..\..\..\
 
 set GOPATH=%cd%
 cd %CURR%
-
 
 rd /s/q windows
 mkdir windows
@@ -18,19 +36,3 @@ go build -o windows/3_genConfigDefine.exe github.com/Blizzardx/GoConfigTool/exce
 
 
 @IF %ERRORLEVEL% NEQ 0 pause
-
-:: 创建 classDefine
-if exist classDefine (
-		echo 目录 classDefine 已存在，无需创建
-	) else (
-		echo 创建classDefine
-		md classDefine
-	)
-
-:: 创建 config
-if exist config (
-		echo 目录 config 已存在，无需创建
-	) else (
-		echo 创建config
-		md config
-	)
