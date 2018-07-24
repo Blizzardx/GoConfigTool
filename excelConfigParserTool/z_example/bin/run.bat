@@ -20,8 +20,13 @@ protoc.exe --plugin=protoc-gen-go=protoc-gen-go.exe --go_out %GO_OUTDIR% --proto
 
 @IF %ERRORLEVEL% NEQ 0 pause
 echo 这里需要删除import文件夹 并创建目录结构
+cd ..
+rd /s/q import
+mkdir import
+cd import
+mkdir config
 
-cd ../import/config
+cd config
 set parserOutputPath=%cd%
 
 cd ../../windows
@@ -49,5 +54,16 @@ cd %CURR%
 
 go build -o windows/import.exe github.com/Blizzardx/GoConfigTool/excelConfigParserTool/z_example/bin/import
 
+@IF %ERRORLEVEL% NEQ 0 pause
+
+
+rd /s/q output
+mkdir output
+
+cd output
+set OutputPath=%cd%
+
+cd ../windows
+import.exe %OutputPath% %configPath%
 
 @IF %ERRORLEVEL% NEQ 0 pause
