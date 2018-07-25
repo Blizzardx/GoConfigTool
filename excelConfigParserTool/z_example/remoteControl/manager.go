@@ -37,8 +37,6 @@ func main() {
 	configInputPath = parserParentPath(workDir, 1) + "/input/"
 	classDefineOutputPath = parserParentPath(workDir, 1) + "/tmp/classDefine/"
 
-	importConfig("BasicItem_Common")
-	return
 	build()
 
 	run()
