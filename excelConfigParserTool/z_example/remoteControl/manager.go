@@ -35,6 +35,7 @@ func main() {
 	}
 
 	configInputPath = parserParentPath(workDir, 1) + "/input/"
+	classDefineOutputPath = parserParentPath(workDir, 1) + "/tmp/classDefine/"
 
 	importConfig("BasicItem_Common")
 	return
@@ -60,7 +61,6 @@ func build() {
 func run() {
 
 	//生成 *。pb 文件
-	classDefineOutputPath = parserParentPath(workDir, 1) + "/tmp/classDefine/"
 	clearFolder(classDefineOutputPath)
 
 	callApplication("1_genConfigProvision", configInputPath, classDefineOutputPath, "pb", "config")
