@@ -29,6 +29,11 @@ func main() {
 
 	fixWorkPath()
 
+	if parserParentPath(workDir, 9)+"/GoConfigTool/src/github.com/Blizzardx/GoConfigTool/excelConfigParserTool/z_example/bin/lib" != workDir {
+		fmt.Println("error work space dir ,work dir must at /GoConfigTool/src/github.com/Blizzardx/GoConfigTool/excelConfigParserTool/z_example/bin/lib")
+		return
+	}
+
 	build()
 
 	run()
