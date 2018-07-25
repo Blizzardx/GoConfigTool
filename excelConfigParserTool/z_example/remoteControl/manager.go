@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"log"
 	"os"
 	"os/exec"
 	"runtime"
@@ -15,6 +16,18 @@ var configInputPath = ""
 var classDefineOutputPath = ""
 var runtimePlatform = ""
 
+func main1() {
+	pwd, err := os.Getwd()
+	fmt.Println(pwd)
+	files, err := ioutil.ReadDir("")
+	if err != nil {
+		log.Println("error on check directory change " + err.Error())
+		return
+	}
+	for _, file := range files {
+		fmt.Println(file)
+	}
+}
 func main() {
 	if runtime.GOOS == "windows" {
 		runtimePlatform = "windows"
@@ -23,9 +36,9 @@ func main() {
 	}
 
 	workDir = getCurrentPath()
-	if len(os.Args) > 1 {
-		workDir = os.Args[1]
-	}
+	//if len(os.Args) > 1 {
+	//	workDir = os.Args[1]
+	//}
 
 	fixWorkPath()
 
@@ -153,14 +166,12 @@ func parserParentPath(sourcePath string, count int) string {
 	return resPath
 }
 func getCurrentPath() string {
-	s, err := exec.LookPath(os.Args[0])
-	if nil != err {
+	pwd, err := os.Getwd()
+	if err != nil {
 		fmt.Println(err)
-		return ""
 	}
-	i := strings.LastIndex(s, "\\")
-	path := string(s[0 : i+1])
-	return path
+	fmt.Println(pwd)
+	return pwd
 }
 
 // folder tool
