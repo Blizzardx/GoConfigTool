@@ -2,27 +2,117 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"io/ioutil"
 	"os"
 	"os/exec"
+	"runtime"
 	"strings"
 )
 
+var workDir = ""
+var configInputPath = ""
+var classDefineOutputPath = ""
+var runtimePlatform = ""
+
 func main() {
-	fmt.Println(getCurrentPath())
-	fmt.Println(parserParentPath(getCurrentPath(), 1))
-	fmt.Println(parserParentPath(getCurrentPath(), 2))
-	fmt.Println(parserParentPath(getCurrentPath(), 3))
-	fmt.Println(parserParentPath(getCurrentPath(), 4))
+	if runtime.GOOS == "windows" {
+		runtimePlatform = "windows"
+	} else {
+		runtimePlatform = "linux"
+	}
 
-	return
-	execCmd("E:/porject/GoConfigTool/src/github.com/Blizzardx/GoConfigTool/excelConfigParserTool/z_example/bin/lib/tool/compileGoProject.bat",
-		"amd64",
-		"windows",
-		"E:/porject/GoConfigTool/",
-		"windows/3_genConfigDefine",
-		"github.com/Blizzardx/GoConfigTool/excelConfigParserTool/z_example/3_genConfigDefine")
+	workDir = getCurrentPath()
+	if len(os.Args) > 1 {
+		workDir = os.Args[1]
+	}
 
+	fixWorkPath()
+
+	build()
+
+	run()
+}
+
+func build() {
+
+	tmpDir := parserParentPath(workDir, 1) + "/tmp/"
+	ensureFolder(tmpDir)
+
+	inputDir := parserParentPath(workDir, 1) + "/input/"
+	ensureFolder(inputDir)
+
+	compileGoProject("1_genConfigProvision", "github.com/Blizzardx/GoConfigTool/excelConfigParserTool/z_example/1_genConfigProvision")
+	compileGoProject("2_genConfigParser", "github.com/Blizzardx/GoConfigTool/excelConfigParserTool/z_example/2_genConfigParser")
+	compileGoProject("3_genConfigDefine", "github.com/Blizzardx/GoConfigTool/excelConfigParserTool/z_example/3_genConfigDefine")
+
+}
+
+func run() {
+
+	configInputPath = parserParentPath(workDir, 1) + "/input/"
+	classDefineOutputPath = parserParentPath(workDir, 1) + "/tmp/classDefine/"
+	clearFolder(classDefineOutputPath)
+
+	callApplication("1_genConfigProvision", configInputPath, classDefineOutputPath, "pb", "config")
+
+	goOutDir := parserParentPath(workDir, 1) + "/tmp/go/"
+	clearFolder(goOutDir)
+
+	genProtoBuf(goOutDir, classDefineOutputPath)
+
+	// copy go file to dir file
+	importProjectPath := parserParentPath(workDir, 1) + "/tmp/import/"
+	clearFolder(importProjectPath)
+	importProjectConfigPath := parserParentPath(workDir, 1) + "/tmp/import/config"
+	clearFolder(importProjectConfigPath)
+	copyDir(goOutDir, importProjectConfigPath+"/")
+
+	//export import project
+	callApplication("2_genConfigParser", configInputPath, importProjectConfigPath, "pb", "config", "github.com/Blizzardx/GoConfigTool/excelConfigParserTool/z_example/bin/tmp/import/config")
+
+	//compile import project
+	compileGoProject("import", "github.com/Blizzardx/GoConfigTool/excelConfigParserTool/z_example/bin/tmp/import")
+}
+
+// compile go project tool
+func compileGoProject(outputName string, projectPath string) {
+	platform := "windows"
+	platformSuffix := ".bat"
+	execProgramSuffix := ".exe"
+
+	if runtimePlatform == "linux" {
+		platform = "linux"
+		platformSuffix = ".sh"
+		execProgramSuffix = ""
+	}
+	outputDir := parserParentPath(workDir, 1) + "/tmp/" + platform + "/" + outputName + execProgramSuffix
+
+	execCmd(workDir+"/tool/compileGoProject"+platformSuffix, "amd64", platform, parserParentPath(workDir, 8), outputDir, projectPath)
+}
+func genProtoBuf(outputPath string, pbInputPath string) {
+	protoBufToolPath := workDir + "/protobufTool/"
+	suffix := ".bat"
+	if runtimePlatform == "linux" {
+		suffix = ".sh"
+	}
+
+	execCmd(protoBufToolPath+"genPB"+suffix, outputPath, pbInputPath, protoBufToolPath)
+}
+func callApplication(appName string, arg ...string) {
+	appSuffix := ".exe"
+	if runtimePlatform == "linux" {
+		appSuffix = ""
+	}
+	execCmd(parserParentPath(workDir, 1)+"/tmp/"+runtimePlatform+"/"+appName+appSuffix, arg...)
+}
+
+// path tool
+func fixWorkPath() {
+	workDir = strings.Replace(workDir, "\\", "/", -1)
+	if workDir[len(workDir)-1] == '/' {
+		workDir = workDir[0 : len(workDir)-2]
+	}
 }
 func parserParentPath(sourcePath string, count int) string {
 	fixedPath := strings.Replace(sourcePath, "\\", "/", -1)
@@ -50,6 +140,60 @@ func getCurrentPath() string {
 	path := string(s[0 : i+1])
 	return path
 }
+
+// folder tool
+func ensureFolder(path string) {
+	exist, err := pathExists(path)
+	if err != nil {
+		fmt.Printf("get dir error %v \n", err)
+		return
+	}
+
+	if exist {
+		fmt.Printf("has dir %v \n", path)
+	} else {
+		fmt.Printf("no dir %v \n", path)
+		// 创建文件夹
+		err := os.Mkdir(path, os.ModePerm)
+		if err != nil {
+			fmt.Printf("mkdir failed %v \n", err)
+		} else {
+			fmt.Printf("mkdir success!\n")
+		}
+	}
+}
+func clearFolder(path string) {
+	exist, err := pathExists(path)
+	if err != nil {
+		fmt.Printf("get dir error %v \n", err)
+		return
+	}
+
+	if exist {
+		fmt.Printf("has dir![%v]\n", path)
+		os.RemoveAll(path)
+	}
+	fmt.Printf("no dir![%v]\n", path)
+	// 创建文件夹
+	err = os.Mkdir(path, os.ModePerm)
+	if err != nil {
+		fmt.Printf("mkdir failed![%v]\n", err)
+	} else {
+		fmt.Printf("mkdir success!\n")
+	}
+}
+func pathExists(path string) (bool, error) {
+	_, err := os.Stat(path)
+	if err == nil {
+		return true, nil
+	}
+	if os.IsNotExist(err) {
+		return false, nil
+	}
+	return false, err
+}
+
+// cmd tool
 func execCmd(name string, arg ...string) error {
 	cmd := exec.Command(name, arg...)
 	//err := cmd.Run()
@@ -90,12 +234,39 @@ func test(name string, arg ...string) {
 
 	fmt.Println("Execute finished:" + string(out_bytes))
 }
-func compileGoProject() {
 
-	execCmd("E:/porject/GoConfigTool/src/github.com/Blizzardx/GoConfigTool/excelConfigParserTool/z_example/bin/lib/tool/compileGoProject.bat",
-		"amd64",
-		"windows",
-		"E:/porject/GoConfigTool/",
-		"windows/3_genConfigDefine",
-		"github.com/Blizzardx/GoConfigTool/excelConfigParserTool/z_example/3_genConfigDefine")
+// file tool
+func copyDir(src, dst string) {
+	files, _ := ioutil.ReadDir(src)
+	for _, fileElem := range files {
+		if fileElem.IsDir() {
+			continue
+		}
+		copy(src+fileElem.Name(), dst+fileElem.Name())
+	}
+}
+func copy(src, dst string) (int64, error) {
+	sourceFileStat, err := os.Stat(src)
+	if err != nil {
+		return 0, err
+	}
+
+	if !sourceFileStat.Mode().IsRegular() {
+		return 0, fmt.Errorf("%s is not a regular file", src)
+	}
+
+	source, err := os.Open(src)
+	if err != nil {
+		return 0, err
+	}
+	defer source.Close()
+
+	destination, err := os.Create(dst)
+	if err != nil {
+		return 0, err
+	}
+
+	defer destination.Close()
+	nBytes, err := io.Copy(destination, source)
+	return nBytes, err
 }
