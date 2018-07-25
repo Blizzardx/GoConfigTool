@@ -34,6 +34,10 @@ func main() {
 		return
 	}
 
+	configInputPath = parserParentPath(workDir, 1) + "/input/"
+
+	importConfig("BasicItem_Common")
+	return
 	build()
 
 	run()
@@ -55,12 +59,13 @@ func build() {
 
 func run() {
 
-	configInputPath = parserParentPath(workDir, 1) + "/input/"
+	//生成 *。pb 文件
 	classDefineOutputPath = parserParentPath(workDir, 1) + "/tmp/classDefine/"
 	clearFolder(classDefineOutputPath)
 
 	callApplication("1_genConfigProvision", configInputPath, classDefineOutputPath, "pb", "config")
 
+	//调用 pb 生成代码
 	goOutDir := parserParentPath(workDir, 1) + "/tmp/go/"
 	clearFolder(goOutDir)
 
@@ -78,6 +83,20 @@ func run() {
 
 	//compile import project
 	compileGoProject("import", "github.com/Blizzardx/GoConfigTool/excelConfigParserTool/z_example/bin/tmp/import")
+
+	importConfig("")
+}
+
+func importConfig(targetConfig string) {
+
+	outputDir := parserParentPath(workDir, 1) + "/output/"
+
+	if targetConfig == "" {
+		clearFolder(outputDir)
+		callApplication("import", outputDir, configInputPath)
+	} else {
+		callApplication("import", outputDir, configInputPath, targetConfig)
+	}
 }
 
 // compile go project tool
